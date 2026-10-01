@@ -1,0 +1,711 @@
+@import "tailwindcss";
+
+/* ============================================================
+   Universal Music Metadata Studio — design system
+
+   A desktop-instrument aesthetic: layered graphite surfaces, one
+   signal colour, hairline separators, monospace reserved for
+   anything technical (paths, codes, durations, counts).
+
+   Four themes share one token contract, so every component is
+   written once and re-themed by swapping variables.
+   ============================================================ */
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Type scale. Named rather than arbitrary so spacing and density
+     stay coherent across 24 components. */
+  --text-micro: 10px; /* uppercase labels, badges, chips */
+  --text-label: 11px; /* metadata, secondary UI */
+  --text-body: 12px; /* default interactive text */
+  --text-lead: 13.5px; /* prose, headings inside panels */
+  --text-title: 15px; /* dialog + panel titles */
+  --text-display: 20px; /* metrics */
+  --text-hero: 34px; /* welcome headline */
+
+  --radius-xs: 3px;
+  --radius-sm: 5px;
+  --radius-md: 7px;
+  --radius-lg: 10px;
+  --radius-xl: 14px;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+:root {
+  color-scheme: dark;
+
+  /* Surfaces, darkest to lightest. Panels sit above the chassis; only
+     `raised` and `hover` are meant to receive interactive states. */
+  --chassis: #0a0b0d;
+  --panel: #101216;
+  --panel-2: #15181e;
+  --raised: #1c2027;
+  --hover: #232830;
+  --line: #21262e;
+  --line-strong: #333a44;
+
+  /* Text */
+  --text: #e9ebef;
+  --text-dim: #a2aab5;
+  --text-faint: #6b7280;
+
+  /* Signal colour + derived states */
+  --accent: #f5a524;
+  --accent-fg: #1a1204;
+  --accent-soft: color-mix(in oklab, var(--accent) 14%, transparent);
+  --accent-line: color-mix(in oklab, var(--accent) 42%, transparent);
+  --accent-glow: color-mix(in oklab, var(--accent) 22%, transparent);
+
+  --ok: #43c98a;
+  --warn: #e8b93a;
+  --danger: #f0626e;
+  --info: #5aa9e6;
+
+  /* Metrics */
+  --row-h: 28px;
+  --topbar-h: 48px;
+  --statusbar-h: 26px;
+
+  /* Elevation. Each level adds a hairline ring so surfaces stay
+     separated even when the shadow is imperceptible on OLED. */
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
+  --shadow-md: 0 4px 12px -2px rgb(0 0 0 / 0.45);
+  --shadow-lg: 0 18px 44px -12px rgb(0 0 0 / 0.7);
+  --shadow-pop: var(--shadow-lg), 0 0 0 1px var(--line-strong);
+
+  /* Focus: a coloured ring plus an inner contrast line so it stays
+     visible against both the accent and the chassis. */
+  --ring: 0 0 0 2px var(--accent), 0 0 0 4px color-mix(in oklab, var(--accent) 22%, transparent);
+  --ring-inset: inset 0 0 0 1px var(--accent-line);
+
+  --dur-fast: 110ms;
+  --dur: 180ms;
+  --dur-slow: 280ms;
+
+  /* Scene-only colours, derived from the theme so the 3D stage
+     re-themes with everything else. */
+  --scene-line: color-mix(in oklab, var(--accent) 12%, transparent);
+}
+
+/* OLED — true black, deeper wells, shadows replaced by hairlines */
+[data-theme="oled"] {
+  --chassis: #000000;
+  --panel: #060709;
+  --panel-2: #0b0d10;
+  --raised: #13161b;
+  --hover: #1a1e25;
+  --line: #191d23;
+  --line-strong: #2c323b;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: 0 0 0 1px var(--line-strong);
+}
+
+/* Light — paper-grey instrument, identical structure */
+[data-theme="light"] {
+  color-scheme: light;
+  --chassis: #eceef2;
+  --panel: #f7f8fa;
+  --panel-2: #ffffff;
+  --raised: #ffffff;
+  --hover: #eef1f5;
+  --line: #dde1e8;
+  --line-strong: #bfc7d2;
+  --text: #101319;
+  --text-dim: #4b5462;
+  --text-faint: #78818f;
+  --accent: #b96a06;
+  --accent-fg: #fffaf1;
+  --accent-soft: color-mix(in oklab, var(--accent) 12%, transparent);
+  --accent-line: color-mix(in oklab, var(--accent) 38%, transparent);
+  --accent-glow: color-mix(in oklab, var(--accent) 16%, transparent);
+  --ok: #12805a;
+  --warn: #8f6708;
+  --danger: #c22b3a;
+  --info: #1f6fb2;
+  --shadow-sm: 0 1px 2px rgb(16 24 40 / 0.06);
+  --shadow-md: 0 4px 14px -3px rgb(16 24 40 / 0.12);
+  --shadow-lg: 0 20px 48px -16px rgb(16 24 40 / 0.22);
+}
+
+/* High contrast — AAA text, bright separators, no translucency tricks */
+[data-theme="contrast"] {
+  --chassis: #000000;
+  --panel: #000000;
+  --panel-2: #0b0b0b;
+  --raised: #161616;
+  --hover: #232323;
+  --line: #5c5c5c;
+  --line-strong: #949494;
+  --text: #ffffff;
+  --text-dim: #e6e6e6;
+  --text-faint: #c4c4c4;
+  --accent: #ffd400;
+  --accent-fg: #000000;
+  --accent-soft: color-mix(in oklab, var(--accent) 24%, transparent);
+  --accent-line: var(--accent);
+  --ok: #3dff96;
+  --warn: #ffd400;
+  --danger: #ff6b78;
+  --info: #7cc4ff;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: 0 0 0 2px var(--line-strong);
+}
+
+* {
+  border-color: var(--line);
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--chassis);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "cv02", "cv03", "ss01";
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Freeze the fallback stage as a still frame instead of letting the
+     global override collapse every bar to its zero keyframe. (The WebGL
+     path renders a single frame itself.) */
+  .scene-bar {
+    animation: none !important;
+    transform: scaleY(calc(0.3 + var(--amp) * 0.6));
+  }
+  .scene-floor {
+    animation: none !important;
+  }
+}
+
+/* ---------- scrollbars ---------- */
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
+}
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border: 3px solid transparent;
+  background-clip: content-box;
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-faint);
+  background-clip: content-box;
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+::selection {
+  background: var(--accent-soft);
+  color: var(--text);
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--ring);
+  border-radius: var(--radius-xs);
+}
+
+/* ============================================================
+   Component layer
+   ============================================================ */
+
+@layer components {
+  /* ---------- buttons ---------- */
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    height: 28px;
+    padding-inline: 0.625rem;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.005em;
+    color: var(--text-dim);
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+      background-color var(--dur-fast) var(--ease-out),
+      color var(--dur-fast) var(--ease-out),
+      border-color var(--dur-fast) var(--ease-out),
+      box-shadow var(--dur-fast) var(--ease-out),
+      transform var(--dur-fast) var(--ease-out);
+    user-select: none;
+  }
+  .btn:hover:not(:disabled) {
+    background: var(--raised);
+    color: var(--text);
+  }
+  .btn:active:not(:disabled) {
+    background: var(--hover);
+    transform: translateY(0.5px);
+  }
+  .btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+  .btn[data-active="true"] {
+    background: var(--accent-soft);
+    color: var(--accent);
+    box-shadow: var(--ring-inset);
+  }
+
+  .btn-sm {
+    height: 24px;
+    padding-inline: 0.45rem;
+    font-size: 11px;
+    border-radius: var(--radius-xs);
+  }
+  .btn-lg {
+    height: 34px;
+    padding-inline: 0.875rem;
+    font-size: 13px;
+  }
+
+  .btn-outline {
+    border-color: var(--line-strong);
+    background: var(--panel-2);
+  }
+  .btn-outline:hover:not(:disabled) {
+    border-color: var(--text-faint);
+    background: var(--raised);
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: var(--accent-fg);
+    font-weight: 600;
+    box-shadow: var(--shadow-sm);
+  }
+  .btn-primary:hover:not(:disabled) {
+    background: color-mix(in oklab, var(--accent) 88%, white);
+    color: var(--accent-fg);
+    box-shadow: 0 4px 16px -4px var(--accent-glow);
+  }
+
+  .btn-danger {
+    color: var(--danger);
+  }
+  .btn-danger:hover:not(:disabled) {
+    background: color-mix(in oklab, var(--danger) 14%, transparent);
+    color: var(--danger);
+  }
+
+  .btn-ghost-danger {
+    color: var(--danger);
+    border-color: color-mix(in oklab, var(--danger) 38%, transparent);
+  }
+
+  /* Square icon-only button, used by the toolbar and dialog headers. */
+  .btn-icon {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border-radius: var(--radius-sm);
+  }
+
+  /* ---------- inputs ---------- */
+
+  .input {
+    width: 100%;
+    height: 28px;
+    padding-inline: 0.5rem;
+    font-size: 12px;
+    color: var(--text);
+    background: var(--chassis);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-sm);
+    transition:
+      border-color var(--dur-fast) var(--ease-out),
+      box-shadow var(--dur-fast) var(--ease-out),
+      background-color var(--dur-fast) var(--ease-out);
+  }
+  .input:hover {
+    border-color: var(--text-faint);
+  }
+  .input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+  .input::placeholder {
+    color: var(--text-faint);
+  }
+  .input:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .input-sm {
+    height: 24px;
+    font-size: 11px;
+  }
+
+  select.input {
+    appearance: none;
+    padding-right: 1.5rem;
+    background-image: linear-gradient(45deg, transparent 50%, var(--text-faint) 50%),
+      linear-gradient(135deg, var(--text-faint) 50%, transparent 50%);
+    background-position:
+      calc(100% - 12px) 12px,
+      calc(100% - 8px) 12px;
+    background-size:
+      4px 4px,
+      4px 4px;
+    background-repeat: no-repeat;
+  }
+
+  /* ---------- surfaces ---------- */
+
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+  }
+
+  /* A raised card: subtle vertical gradient + inner top highlight, which
+     is what separates it from a flat panel on dark backgrounds. */
+  .surface {
+    background:
+      linear-gradient(180deg, color-mix(in oklab, var(--raised) 70%, transparent), transparent 60%),
+      var(--panel-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .well {
+    background: var(--chassis);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+  }
+
+  /* ---------- text roles ---------- */
+
+  .label-xs {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+
+  .mono {
+    font-family: var(--font-mono);
+    font-variant-ligatures: none;
+    letter-spacing: -0.01em;
+  }
+
+  .tnum {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Muted helper copy under a control. */
+  .hint {
+    font-size: 11px;
+    line-height: 1.4;
+    color: var(--text-faint);
+  }
+
+  /* ---------- rows ---------- */
+
+  .row-hover {
+    transition: background-color var(--dur-fast) var(--ease-out);
+  }
+  .row-hover:hover {
+    background: color-mix(in oklab, var(--raised) 55%, transparent);
+  }
+
+  .row-selected {
+    background: var(--accent-soft);
+    box-shadow: var(--ring-inset);
+  }
+
+  .divider-v {
+    width: 1px;
+    align-self: stretch;
+    margin-block: 9px;
+    background: var(--line);
+    flex: none;
+  }
+
+  /* ---------- keyboard hint ---------- */
+
+  .kbd {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.15rem;
+    min-width: 1.35em;
+    height: 18px;
+    padding-inline: 0.3rem;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-faint);
+    background: var(--chassis);
+    border: 1px solid var(--line-strong);
+    border-bottom-width: 2px;
+    border-radius: var(--radius-xs);
+  }
+}
+
+/* ---------- utilities ---------- */
+
+@utility hairline-t {
+  border-top: 1px solid var(--line);
+}
+
+@utility hairline-b {
+  border-bottom: 1px solid var(--line);
+}
+
+@utility dirty {
+  position: relative;
+}
+
+@utility dirty-underline {
+  text-decoration: underline;
+  text-decoration-color: var(--accent);
+  text-decoration-style: dashed;
+  text-underline-offset: 3px;
+}
+
+/* Entrance animations. Kept short and easing-out so the interface feels
+   responsive rather than animated. */
+@keyframes studio-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes studio-pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes studio-rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes studio-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@utility animate-overlay-in {
+  animation: studio-fade-in var(--dur) var(--ease-out);
+}
+
+@utility animate-dialog-in {
+  animation: studio-pop-in var(--dur) var(--ease-out);
+}
+
+@utility animate-toast-in {
+  animation: studio-rise-in var(--dur-slow) var(--ease-out);
+}
+
+/* ============================================================
+   3D background scene
+
+   Primary render is a WebGL raymarched stage (hero-gl.ts). The
+   classes below are the transform-only fallback used when a
+   context cannot be created, plus the shared shell: the stage box,
+   its vignette mask, and the scrim that keeps hero copy legible.
+   ============================================================ */
+
+.scene {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  contain: strict;
+  /* Fade the stage out at the edges so the copy always wins. */
+  mask-image: radial-gradient(78% 88% at 62% 32%, black 30%, transparent 100%);
+}
+
+/* WebGL path. The canvas is upscaled from a deliberately smaller
+   backing buffer: it is a soft backdrop, so the softness is free. */
+.scene--gl {
+  perspective: none;
+}
+
+.scene-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* CSS fallback stage: a real perspective box with a tilted ground
+   plane and two rows of bars standing on it. */
+.scene:not(.scene--gl) {
+  perspective: 900px;
+  perspective-origin: 50% 30%;
+  /* Parallax targets, written by the fallback before first paint. */
+  --tilt-x: 0deg;
+  --tilt-y: 0deg;
+  --shift-x: 0px;
+}
+
+.scene-floor {
+  position: absolute;
+  left: -25%;
+  right: -25%;
+  top: 58%;
+  height: 120%;
+  transform: translateY(var(--shift-x)) rotateX(calc(74deg + var(--tilt-x)));
+  transform-origin: 50% 0;
+  background-image:
+    linear-gradient(var(--scene-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--scene-line) 1px, transparent 1px);
+  background-size: 68px 68px;
+  animation: scene-drift 9s linear infinite;
+}
+
+/* Horizon glow: sells the depth without touching the palette. */
+.scene-horizon {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 55%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--accent-line) 22%,
+    var(--accent) 50%,
+    var(--accent-line) 78%,
+    transparent
+  );
+  box-shadow: 0 0 26px 6px var(--accent-glow);
+  opacity: 0.55;
+}
+
+.scene-field {
+  position: absolute;
+  left: 50%;
+  top: 63%;
+  display: flex;
+  align-items: flex-end;
+  gap: 5px;
+  height: 150px;
+  transform: translateX(calc(-50% + var(--shift-x))) rotateX(calc(66deg + var(--tilt-x)))
+    rotateZ(calc(var(--tilt-y) * 0.5));
+  transform-origin: 50% 100%;
+}
+
+.scene-field--far {
+  top: 56.5%;
+  gap: 11px;
+  height: 96px;
+  opacity: 0.45;
+}
+
+.scene-bar {
+  width: 3px;
+  height: 100%;
+  transform-origin: 50% 100%;
+  border-radius: 2px;
+  background: linear-gradient(
+    180deg,
+    var(--accent) 0%,
+    color-mix(in oklab, var(--accent) 55%, transparent) 45%,
+    transparent 100%
+  );
+  opacity: calc(0.18 + var(--amp) * 0.62);
+  animation: scene-pulse var(--beat) var(--ease-in-out) infinite alternate;
+  animation-delay: var(--offset);
+}
+
+@keyframes scene-drift {
+  from {
+    background-position:
+      0 0,
+      0 0;
+  }
+  to {
+    background-position:
+      0 68px,
+      68px 0;
+  }
+}
+
+@keyframes scene-pulse {
+  from {
+    transform: scaleY(calc(0.16 + var(--amp) * 0.22));
+  }
+  to {
+    transform: scaleY(calc(0.42 + var(--amp) * 0.58));
+  }
+}
+
+/* Loading placeholder that sweeps rather than blinks. */
+@utility shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--raised) 0%,
+    color-mix(in oklab, var(--hover) 70%, var(--raised)) 50%,
+    var(--raised) 100%
+  );
+  background-size: 200% 100%;
+  animation: studio-shimmer 1.6s linear infinite;
+}
